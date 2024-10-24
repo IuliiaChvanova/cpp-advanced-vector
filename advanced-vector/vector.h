@@ -5,8 +5,6 @@
 #include <memory>
 #include <utility>
 
-
-
 template <typename T>
 class RawMemory {
 public:
@@ -17,21 +15,20 @@ public:
         , capacity_(capacity) {
     }
 
+    
     RawMemory(const RawMemory& other) = delete;
+    
     
     RawMemory& operator = (const RawMemory& rhs) = delete;
     
+    
     //После перемещения новый вектор станет владеть данными исходного вектора. Исходный вектор будет иметь нулевой размер и вместимость и ссылаться на nullptr.
-    
-    
     RawMemory(RawMemory&& other) noexcept {
         if (this != &other) {
-            
             buffer_ = std::exchange(other.buffer_, nullptr);
             capacity_ = std::exchange(other.capacity_, 0);
             Deallocate(other.buffer_);
-        }
-        
+        }   
     }
     
     
@@ -40,7 +37,6 @@ public:
         capacity_ = std::move(rhs.capacity_);
         return *this;
     }
-    
     
     
     ~RawMemory() {
@@ -54,32 +50,39 @@ public:
         return buffer_ + offset;
     }
 
+    
     const T* operator+(size_t offset) const noexcept {
         return const_cast<RawMemory&>(*this) + offset;
     }
 
+    
     const T& operator[](size_t index) const noexcept {
         return const_cast<RawMemory&>(*this)[index];
     }
 
+    
     T& operator[](size_t index) noexcept {
         assert(index < capacity_);
         return buffer_[index];
     }
 
+    
     void Swap(RawMemory& other) noexcept {
         std::swap(buffer_, other.buffer_);
         std::swap(capacity_, other.capacity_);
     }
 
+    
     const T* GetAddress() const noexcept {
         return buffer_;
     }
 
+    
     T* GetAddress() noexcept {
         return buffer_;
     }
 
+    
     size_t Capacity() const {
         return capacity_;
     }
@@ -90,6 +93,7 @@ private:
         return n != 0 ? static_cast<T*>(operator new(n * sizeof(T))) : nullptr;
     }
 
+    
     // Освобождает сырую память, выделенную ранее по адресу buf при помощи Allocate
     // dealocate allocated memory
     static void Deallocate(T* buf) noexcept {
